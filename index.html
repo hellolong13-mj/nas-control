@@ -381,6 +381,7 @@
 <script>
 const NAS_IP = '218.54.41.113';
 const WOL_URL = `http://${NAS_IP}:8810`;
+const NAS_URL = 'https://ug.link/hellolong';
 
 function setLog(msg, type='') {
   const el = document.getElementById('logMsg');
@@ -396,7 +397,7 @@ function setStatus(status, label) {
 
 function checkStatus() {
   setLog('NAS 관리 페이지로 이동합니다...', 'info');
-  window.location.href = `http://${NAS_IP}`;
+  window.location.href = NAS_URL;
 }
 
 function wakeNAS() {
@@ -407,7 +408,7 @@ function wakeNAS() {
 function shutdownNAS() {
   if (!confirm('NAS를 종료하시겠어요?')) return;
   setLog('UGOS Pro로 이동합니다...', 'info');
-  window.location.href = `http://${NAS_IP}`;
+  window.location.href = NAS_URL;
 }
 
 function sendChat() {
