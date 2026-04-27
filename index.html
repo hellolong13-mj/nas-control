@@ -395,21 +395,30 @@ function setStatus(status, label) {
 }
 
 function checkStatus() {
-  setLog('NAS 관리 페이지를 열게요...', 'info');
-  window.open(`http://${NAS_IP}`, '_blank');
-  setTimeout(() => setLog('페이지가 열리면 온라인, 안 열리면 오프라인입니다', 'success'), 800);
+  setLog('NAS 관리 페이지로 이동합니다...', 'info');
+  openURL(`http://${NAS_IP}`);
+}
+
+function openURL(url) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function wakeNAS() {
-  setLog('WOL 페이지 열기...', 'info');
-  window.open(WOL_URL, '_blank');
-  setTimeout(() => setLog('공유기 WOL 페이지에서 "PC 켜기" 버튼을 누르세요', 'success'), 800);
+  setLog('WOL 페이지로 이동합니다...', 'info');
+  openURL(WOL_URL);
+  setTimeout(() => setLog('공유기 WOL 페이지에서 "PC 켜기" 버튼을 누르세요', 'success'), 500);
 }
 
 function shutdownNAS() {
   if (!confirm('NAS를 종료하시겠어요?')) return;
-  setLog('UGOS Pro 접속 중...', 'info');
-  window.open(`http://${NAS_IP}`, '_blank');
+  setLog('UGOS Pro로 이동합니다...', 'info');
+  openURL(`http://${NAS_IP}`);
 }
 
 function sendChat() {
