@@ -1,446 +1,68 @@
-<!DOCTYPE html>
+$ python3 - << 'PYEOF'
+import json
+
+with open('/Users/junmun/Desktop/ggum/nas-wol-v2.html', 'r') as f:
+    html_content = f.read()
+
+git_cmd = 'git add index.html && git commit -m "Add PWA meta tags" && git push'
+
+page = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NAS 제어</title>
+<title>PWA 설치 가이드</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
-
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --border: #1e1e2e;
-    --accent: #00ff88;
-    --accent2: #0088ff;
-    --danger: #ff3355;
-    --text: #e0e0f0;
-    --muted: #555577;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-  }
-
-  .container {
-    width: 100%;
-    max-width: 400px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: 28px;
-  }
-
-  .header .label {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .header h1 {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -1px;
-  }
-
-  .status-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 14px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s;
-  }
-
-  .status-card.online { border-color: rgba(0,255,136,0.3); }
-  .status-card.offline { border-color: rgba(255,51,85,0.3); }
-
-  .status-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .status-card.online::before { opacity: 1; }
-
-  .status-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .status-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .status-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--muted);
-    transition: all 0.3s;
-  }
-
-  .dot.online { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
-  .dot.offline { background: var(--danger); }
-  .dot.checking { background: #ffaa00; animation: pulse 0.8s infinite; }
-
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .info-item {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 10px 12px;
-  }
-
-  .info-item .key {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 3px;
-  }
-
-  .info-item .val {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--text);
-    word-break: break-all;
-  }
-
-  .btn-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .btn {
-    padding: 14px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--surface);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .btn:active { transform: scale(0.97); }
-  .btn-icon { font-size: 18px; }
-
-  .btn-wake { border-color: var(--accent); color: var(--accent); }
-  .btn-wake:hover { background: rgba(0,255,136,0.1); box-shadow: 0 0 16px rgba(0,255,136,0.15); }
-
-  .btn-shutdown { border-color: var(--danger); color: var(--danger); }
-  .btn-shutdown:hover { background: rgba(255,51,85,0.1); box-shadow: 0 0 16px rgba(255,51,85,0.15); }
-
-  .btn-check { grid-column: 1/-1; border-color: var(--accent2); color: var(--accent2); }
-  .btn-check:hover { background: rgba(0,136,255,0.1); }
-
-  .log {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    text-align: center;
-    min-height: 14px;
-    margin-bottom: 14px;
-  }
-  .log.success { color: var(--accent); }
-  .log.error { color: var(--danger); }
-  .log.info { color: var(--accent2); }
-
-  .chat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .chat-header {
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .chat-messages {
-    padding: 14px;
-    min-height: 90px;
-    max-height: 180px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .chat-messages::-webkit-scrollbar { width: 4px; }
-  .chat-messages::-webkit-scrollbar-track { background: transparent; }
-  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .message { display: flex; gap: 8px; align-items: flex-start; animation: fadeIn 0.3s ease; }
-  .message.user { flex-direction: row-reverse; }
-
-  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
-
-  .msg-avatar {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; flex-shrink: 0;
-  }
-
-  .message.ai .msg-avatar { background: rgba(0,255,136,0.15); color: var(--accent); }
-  .message.user .msg-avatar { background: rgba(0,136,255,0.15); color: var(--accent2); }
-
-  .msg-text {
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 13px;
-    line-height: 1.5;
-    max-width: 230px;
-  }
-
-  .chat-input-row {
-    padding: 10px 14px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-  }
-
-  .chat-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .chat-input:focus { border-color: var(--accent2); }
-  .chat-input::placeholder { color: var(--muted); }
-
-  .btn-send {
-    width: 38px; height: 38px;
-    border-radius: 8px;
-    border: 1px solid var(--accent2);
-    background: rgba(0,136,255,0.1);
-    color: var(--accent2);
-    cursor: pointer;
-    font-size: 15px;
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .btn-send:hover { background: rgba(0,136,255,0.2); }
+  body {{ font-family: Arial, sans-serif; background: #0a0a0f; color: #e0e0f0; padding: 24px; max-width: 600px; margin: 0 auto; }}
+  h2 {{ color: #00ff88; margin-bottom: 4px; }}
+  .subtitle {{ color: #555577; font-size: 12px; margin-bottom: 24px; }}
+  .step {{ background: #13131a; border: 1px solid #1e1e2e; border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; }}
+  .step-header {{ display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }}
+  .step-num {{ width: 28px; height: 28px; border-radius: 50%; background: #1e1e2e; color: #aaa; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; flex-shrink: 0; }}
+  .step-title {{ font-size: 14px; font-weight: bold; }}
+  .step-desc {{ font-size: 12px; color: #555577; margin-bottom: 8px; margin-left: 40px; }}
+  code {{ background: #0a0a0f; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #00ff88; }}
+  textarea {{ width: 100%; background: #0a0a0f; color: #00ff88; border: 1px solid #1e1e2e; border-radius: 8px; padding: 10px; font-size: 11px; font-family: monospace; resize: none; cursor: pointer; box-sizing: border-box; }}
+  .hint {{ font-size: 11px; color: #555577; margin-top: 4px; }}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div class="label">UGREEN DXP4800 Plus</div>
-    <h1>NAS 원격 제어</h1>
-  </div>
+<h2>index.html PWA 업데이트</h2>
+<p class="subtitle">텍스트 박스 클릭하면 전체 선택 → Cmd+C로 복사</p>
 
-  <div class="status-card" id="statusCard">
-    <div class="status-row">
-      <span class="status-label">장치 상태</span>
-      <div class="status-badge">
-        <div class="dot" id="statusDot"></div>
-        <span id="statusText">대기중</span>
-      </div>
-    </div>
-    <div class="info-grid">
-      <div class="info-item">
-        <div class="key">HOST</div>
-        <div class="val">218.54.41.113</div>
-      </div>
-      <div class="info-item">
-        <div class="key">WOL PORT</div>
-        <div class="val">9000</div>
-      </div>
-      <div class="info-item">
-        <div class="key">MAC</div>
-        <div class="val">6c:1f:f7:a6:46:8c</div>
-      </div>
-      <div class="info-item">
-        <div class="key">MODEL</div>
-        <div class="val">DXP4800+</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn btn-wake" onclick="wakeNAS()">
-      <span class="btn-icon">⚡</span>
-      NAS 켜기
-    </button>
-    <button class="btn btn-shutdown" onclick="shutdownNAS()">
-      <span class="btn-icon">⏻</span>
-      NAS 끄기
-    </button>
-    <button class="btn btn-check" onclick="checkStatus()">
-      <span class="btn-icon">📡</span>
-      상태 확인
-    </button>
-  </div>
-
-  <div class="log" id="logMsg"></div>
-
-  <div class="chat-card">
-    <div class="chat-header">✦ 명령어 어시스턴트</div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="message ai">
-        <div class="msg-avatar">✦</div>
-        <div class="msg-text">"나스 켜줘", "상태 확인해줘" 등으로 말씀해주세요!</div>
-      </div>
-    </div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chatInput" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter')sendChat()">
-      <button class="btn-send" onclick="sendChat()">↑</button>
-    </div>
-  </div>
+<div class="step">
+  <div class="step-header"><div class="step-num">1</div><div class="step-title">Codespace에서 index.html 열기</div></div>
+  <div class="step-desc">좌측 파일 탐색기 → index.html 클릭</div>
 </div>
 
-<script>
-const NAS_IP = '218.54.41.113';
-const WOL_URL = `http://${NAS_IP}:8810`;
+<div class="step">
+  <div class="step-header"><div class="step-num">2</div><div class="step-title">전체 선택 후 삭제</div></div>
+  <div class="step-desc">에디터 클릭 → <code>Cmd+A</code> → <code>Delete</code></div>
+</div>
 
-function setLog(msg, type='') {
-  const el = document.getElementById('logMsg');
-  el.textContent = msg;
-  el.className = 'log ' + type;
-}
+<div class="step">
+  <div class="step-header"><div class="step-num">3</div><div class="step-title">아래 박스 클릭 → Cmd+C → 에디터에 Cmd+V</div></div>
+  <textarea rows="4" onclick="this.select()" readonly>{html_content}</textarea>
+  <div class="hint">클릭하면 전체선택됩니다</div>
+</div>
 
-function setStatus(status, label) {
-  document.getElementById('statusDot').className = 'dot ' + status;
-  document.getElementById('statusCard').className = 'status-card ' + status;
-  document.getElementById('statusText').textContent = label;
-}
+<div class="step">
+  <div class="step-header"><div class="step-num">4</div><div class="step-title">저장</div></div>
+  <div class="step-desc"><code>Cmd+S</code></div>
+</div>
 
-async function checkStatus() {
-  setStatus('checking', '확인중...');
-  setLog('상태 확인 중...', 'info');
-  try {
-    await fetch(`http://${NAS_IP}`, { mode: 'no-cors', signal: AbortSignal.timeout(3000) });
-    setStatus('online', '온라인');
-    setLog('NAS가 온라인 상태입니다', 'success');
-  } catch(e) {
-    setStatus('offline', '오프라인');
-    setLog('NAS가 오프라인 상태입니다', 'error');
-  }
-}
+<div class="step">
+  <div class="step-header"><div class="step-num">5</div><div class="step-title">터미널 push — 아래 박스 클릭 → Cmd+C → 터미널에 Cmd+V → Enter</div></div>
+  <textarea rows="2" onclick="this.select()" readonly>{git_cmd}</textarea>
+  <div class="hint">클릭하면 전체선택됩니다</div>
+</div>
 
-function wakeNAS() {
-  setLog('WOL 페이지 열기...', 'info');
-  window.open(WOL_URL, '_blank');
-  setTimeout(() => setLog('공유기 WOL 페이지에서 "PC 켜기" 버튼을 누르세요', 'success'), 800);
-}
-
-function shutdownNAS() {
-  if (!confirm('NAS를 종료하시겠어요?')) return;
-  setLog('UGOS Pro 접속 중...', 'info');
-  window.open(`http://${NAS_IP}`, '_blank');
-}
-
-function sendChat() {
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-  input.value = '';
-  addMsg(msg, 'user');
-
-  const reply = getAI(msg);
-  addMsg(reply.text, 'ai');
-  if (reply.action) setTimeout(reply.action, 300);
-}
-
-function addMsg(text, role) {
-  const c = document.getElementById('chatMessages');
-  const d = document.createElement('div');
-  d.className = `message ${role}`;
-  d.innerHTML = `<div class="msg-avatar">${role==='ai'?'✦':'나'}</div><div class="msg-text">${text}</div>`;
-  c.appendChild(d);
-  c.scrollTop = c.scrollHeight;
-}
-
-function getAI(msg) {
-  const lower = msg.toLowerCase();
-  if (lower.match(/켜|wake|부팅|시작/)) return { text: 'NAS 켜기를 실행할게요!', action: wakeNAS };
-  if (lower.match(/꺼|종료|끄/)) return { text: 'NAS 종료 페이지를 열게요.', action: shutdownNAS };
-  if (lower.match(/상태|확인|온라인/)) return { text: '상태를 확인할게요.', action: checkStatus };
-  return { text: '"나스 켜줘", "상태 확인해줘" 등으로 말씀해주세요!', action: null };
-}
-</script>
 </body>
-</html>
+</html>"""
+
+with open('/Users/junmun/Desktop/ggum/pwa-install-guide.html', 'w') as f:
+    f.write(page)
+
+print("Done")
+PYEOF
+
+Done
