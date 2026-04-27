@@ -396,29 +396,18 @@ function setStatus(status, label) {
 
 function checkStatus() {
   setLog('NAS 관리 페이지로 이동합니다...', 'info');
-  openURL(`http://${NAS_IP}`);
-}
-
-function openURL(url) {
-  const a = document.createElement('a');
-  a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  window.location.href = `http://${NAS_IP}`;
 }
 
 function wakeNAS() {
   setLog('WOL 페이지로 이동합니다...', 'info');
-  openURL(WOL_URL);
-  setTimeout(() => setLog('공유기 WOL 페이지에서 "PC 켜기" 버튼을 누르세요', 'success'), 500);
+  window.location.href = WOL_URL;
 }
 
 function shutdownNAS() {
   if (!confirm('NAS를 종료하시겠어요?')) return;
   setLog('UGOS Pro로 이동합니다...', 'info');
-  openURL(`http://${NAS_IP}`);
+  window.location.href = `http://${NAS_IP}`;
 }
 
 function sendChat() {
