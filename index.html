@@ -395,9 +395,17 @@ function setStatus(status, label) {
   document.getElementById('statusText').textContent = label;
 }
 
-function checkStatus() {
-  setLog('NAS 관리 페이지로 이동합니다...', 'info');
-  window.location.href = NAS_URL;
+async function checkStatus() {
+  setStatus('checking', '확인중...');
+  setLog('상태 확인 중...', 'info');
+  try {
+    await fetch(NAS_URL, { mode: 'no-cors', signal: AbortSignal.timeout(5000) });
+    setStatus('online', '온라인');
+    setLog('NAS가 온라인 상태입니다', 'success');
+  } catch(e) {
+    setStatus('offline', '오프라인');
+    setLog('NAS가 오프라인 상태입니다', 'error');
+  }
 }
 
 function wakeNAS() {
