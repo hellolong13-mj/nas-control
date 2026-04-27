@@ -169,7 +169,7 @@
 
   .btn-group {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin-bottom: 10px;
   }
@@ -351,10 +351,6 @@
       <span class="btn-icon">⚡</span>
       NAS 켜기
     </button>
-    <button class="btn btn-shutdown" onclick="shutdownNAS()">
-      <span class="btn-icon">⏻</span>
-      NAS 끄기
-    </button>
     <button class="btn btn-check" onclick="checkStatus()">
       <span class="btn-icon">📡</span>
       상태 확인
@@ -409,14 +405,8 @@ async function checkStatus() {
 }
 
 function wakeNAS() {
-  setLog('WOL 페이지로 이동합니다...', 'info');
-  window.location.href = WOL_URL;
-}
-
-function shutdownNAS() {
-  if (!confirm('NAS를 종료하시겠어요?')) return;
-  setLog('UGOS Pro로 이동합니다...', 'info');
-  window.location.href = NAS_URL;
+  setLog('Mocha WOL 실행 중...', 'info');
+  window.location.href = 'mochawol://';
 }
 
 function sendChat() {
